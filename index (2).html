@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Software Testing Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday study guide: clear, patient, exam- and interview-ready
+   IDEA a field guide to testing: one map (the pyramid), then each topic as a tidy reference sheet
+   PICTURE an interactive testing pyramid in a mint field; tap a layer to learn it
+   COLOUR black and white plus one mint field #b8f5d0; coral only for "fail" and "defect"
+   TYPE Space Grotesk 700 display + Inter text
+   LAYOUT laptop: title row, pyramid + layer detail side by side; phone: title, pyramid, detail; sections stack */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0b0d0c);--ink:light-dark(#0d0f0e,#eef3f0);--mute:light-dark(#4f5a55,#a6b3ad);--mint:light-dark(#b8f5d0,#123d29);--mint2:light-dark(#e6fbef,#0f1f18);--deep:light-dark(#0d0f0e,#b8f5d0);--line:light-dark(#d9e2dd,#24302b);--bad:light-dark(#c8382c,#ff7b6e);--card:light-dark(#ffffff,#121614)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:68px;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3,h4{font-family:"Space Grotesk",Inter,sans-serif;letter-spacing:-.02em;line-height:1.1;margin:0}
+.wrap{max-width:1240px;margin:0 auto}
+.band{padding:clamp(32px,4.5vw,64px) max(5vw,16px)}
+.topbar{position:sticky;top:0;z-index:9;background:var(--bg);border-bottom:1px solid var(--line);padding:0 max(5vw,16px)}
+.topbar .wrap{display:flex;align-items:center;gap:16px;min-height:56px}
+.topbar strong{font-family:"Space Grotesk",sans-serif;font-size:17px;white-space:nowrap}
+.scroll{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.scroll a{flex:none;text-decoration:none;color:var(--mute);font-weight:500;font-size:15px;padding:10px 10px;border-radius:8px}
+.scroll a:hover,.scroll a.on{color:var(--ink);background:var(--mint2)}
+.hero{background:var(--mint)}
+.hero h1{font-size:clamp(34px,5vw,52px);max-width:16ch}
+.hero p.intro{font-size:17px;max-width:62ch;margin:12px 0 0}
+.pyr{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(20px,4vw,48px);align-items:center;margin-top:28px}
+.fig{position:relative;min-height:360px}
+.fig svg{position:absolute;inset:0;width:100%;height:100%}
+.fig svg g{cursor:pointer}
+.fig svg g:focus{outline:none}
+.fig svg g:focus-visible polygon{stroke:var(--ink);stroke-width:3}
+.detail{background:var(--card);border-radius:16px;padding:24px;min-height:300px}
+.detail h3{font-size:28px}
+.detail .sub{color:var(--mute);margin:6px 0 12px}
+.kv{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 14px;font-size:15px;margin-top:12px}
+.kv b{font-weight:600}
+.sec h2{font-size:clamp(28px,3.4vw,40px);margin-bottom:8px}
+.lead{color:var(--mute);font-size:17px;max-width:68ch;margin:0 0 24px}
+.alt{background:var(--mint2)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.box h3{font-size:20px;margin-bottom:8px}
+.box p{margin:6px 0}
+.ex{font-size:15px;color:var(--mute);border-top:1px dashed var(--line);margin-top:10px;padding-top:8px}
+.ex b{color:var(--ink)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--mint2);font-weight:600}
+tr:last-child td{border-bottom:0}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 6px;padding:0;list-style:none}
+.flow li{background:var(--card);border:1.5px solid var(--deep);border-radius:10px;padding:8px 12px;font-weight:600;font-size:15px}
+.flow li.x{border-color:var(--bad);color:var(--bad)}
+.flow .arr{border:0;background:none;padding:0;color:var(--mute)}
+.steps{counter-reset:s;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:12px;padding:0;list-style:none;margin:0}
+.steps li{background:var(--card);border-radius:12px;padding:16px;border:1px solid var(--line)}
+.steps li::before{counter-increment:s;content:counter(s);font:700 26px "Space Grotesk",sans-serif;color:var(--deep);display:block}
+.steps b{display:block;margin:2px 0 4px}
+.steps span{font-size:14px;color:var(--mute)}
+.mx{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:stretch}
+.mx .h{font-weight:600;font-size:14px;color:var(--mute);align-self:end;padding:0 4px}
+.mx .v{writing-mode:vertical-rl;transform:rotate(180deg);font-weight:600;font-size:14px;color:var(--mute);text-align:center}
+.mx .c{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;font-size:15px}
+.mx .c b{display:block;font-family:"Space Grotesk",sans-serif;margin-bottom:4px}
+.mx .hot{background:var(--mint);border-color:transparent}
+.formula{font:600 17px "Space Grotesk",sans-serif;background:var(--mint2);border-radius:10px;padding:10px 14px;margin:8px 0;overflow-wrap:anywhere}
+.pill{display:inline-block;font-size:13px;font-weight:600;padding:2px 9px;border-radius:99px;background:var(--mint);color:light-dark(#0d3b24,#d6ffe6);white-space:nowrap}
+.pill.no{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+.search{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+input[type=search]{flex:1 1 260px;font:16px Inter,sans-serif;padding:12px 14px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);min-height:46px}
+.chipbtns{display:flex;flex-wrap:wrap;gap:6px}
+button{font:600 15px Inter,sans-serif;min-height:44px;padding:0 14px;border-radius:10px;border:1.5px solid var(--deep);background:transparent;color:var(--ink);cursor:pointer}
+button.on,button.pri{background:var(--deep);color:var(--bg)}
+button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--bad);outline-offset:2px}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
+summary{cursor:pointer;padding:14px 16px;font-weight:600;list-style:none;display:flex;gap:10px;justify-content:space-between;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font:700 20px "Space Grotesk",sans-serif;color:var(--mute)}
+details[open] summary::after{content:"–"}
+details .a{padding:0 16px 14px;color:var(--ink)}
+details .a p{margin:0 0 8px}
+.tip{font-size:14px;color:var(--mute)}
+.q{margin-bottom:14px}
+.opts{display:grid;gap:8px;margin-top:10px}
+.opt{text-align:left;font-weight:500;border-color:var(--line);background:var(--bg)}
+.opt.r{border-color:var(--deep);background:var(--mint)}
+.opt.w{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.why{font-size:15px;color:var(--mute);margin:8px 0 0}
+.score{font:700 26px "Space Grotesk",sans-serif;margin-bottom:12px}
+footer{border-top:1px solid var(--line);color:var(--mute);font-size:14px;padding:20px max(5vw,16px) 32px}
+@media(max-width:820px){.pyr{grid-template-columns:minmax(0,1fr)}.fig{min-height:300px}.topbar strong{display:none}}
+@media(max-width:600px){table{font-size:13px}th,td{padding:8px 8px}.mx .c{padding:10px;font-size:14px}.detail{padding:18px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <strong>Testing Guide</strong>
+    <nav class="scroll" id="toc" aria-label="Sections">
+      <a href="#levels">Pyramid</a><a href="#basics">Basics</a><a href="#stlc">STLC</a><a href="#types">Test types</a><a href="#methods">Methodologies</a><a href="#design">Test design</a><a href="#strategy">Strategy &amp; plan</a><a href="#defects">Defects</a><a href="#metrics">Metrics</a><a href="#automation">Automation</a><a href="#qa">Interview Q&amp;A</a><a href="#quiz">Quiz</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero band" id="levels">
+  <div class="wrap">
+    <h1>Software testing strategies, explained simply</h1>
+    <p class="intro">A study guide for students and anyone preparing for QA or SDET interviews. Start with the testing pyramid: tap a layer to see what it tests, who writes it and which tools are used.</p>
+    <div class="pyr">
+      <div><div class="fig" id="fig" role="group" aria-label="Testing pyramid"><svg id="pyr"></svg></div><p class="tip" style="margin:8px 0 0;color:inherit">Top: fewer, slower, costlier tests. Base: more, faster, cheaper tests.</p></div>
+      <div class="detail" id="detail" aria-live="polite"></div>
+    </div>
+  </div>
+</section>
+
+<section class="band sec" id="basics">
+  <div class="wrap">
+    <h2>The basics</h2>
+    <p class="lead">Testing checks whether software does what it should and finds problems before users do. It reduces risk; it can never prove software is bug-free.</p>
+    <div class="cols">
+      <div class="box"><h3>QA vs QC vs testing</h3><p><b>Quality assurance (QA)</b> improves the <em>process</em> so defects aren't made (reviews, standards). <b>Quality control (QC)</b> checks the <em>product</em> for defects. <b>Testing</b> is the main QC activity.</p><p class="ex"><b>Remember:</b> QA prevents, QC detects.</p></div>
+      <div class="box"><h3>Verification vs validation</h3><p><b>Verification:</b> "Are we building the product right?" Reviews, walkthroughs, static checks against the spec.</p><p><b>Validation:</b> "Are we building the right product?" Running the software to see it meets user needs.</p></div>
+      <div class="box"><h3>Error, defect, failure</h3><p>A person makes an <b>error</b> (mistake) → it leaves a <b>defect</b> (bug) in the code → running that code causes a <b>failure</b> the user sees.</p><p class="ex"><b>Example:</b> developer types <code>&gt;</code> instead of <code>&gt;=</code> → age 18 is rejected → a valid user can't sign up.</p></div>
+      <div class="box"><h3>Static vs dynamic testing</h3><p><b>Static:</b> examine without running (code reviews, requirement reviews, linters). <b>Dynamic:</b> execute the code with inputs and compare results.</p></div>
+    </div>
+    <h3 style="font-size:24px;margin:32px 0 12px">The 7 testing principles (ISTQB)</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Principle</th><th>What it means in practice</th></tr></thead>
+      <tbody>
+        <tr><td>Testing shows the presence of defects</td><td>Tests can find bugs, but passing tests don't prove there are none.</td></tr>
+        <tr><td>Exhaustive testing is impossible</td><td>You can't test every input; use risk and test design techniques to choose.</td></tr>
+        <tr><td>Early testing saves time and money</td><td>A bug found in requirements costs far less than one found in production (shift-left).</td></tr>
+        <tr><td>Defects cluster together</td><td>A few modules usually hold most bugs; test those harder.</td></tr>
+        <tr><td>Tests wear out (pesticide paradox)</td><td>Running the same tests again stops finding new bugs; review and add tests.</td></tr>
+        <tr><td>Testing is context dependent</td><td>A banking app and a game need different testing.</td></tr>
+        <tr><td>Absence-of-errors fallacy</td><td>Bug-free software that doesn't meet user needs is still a failure.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<section class="band sec alt" id="stlc">
+  <div class="wrap">
+    <h2>Software Testing Life Cycle (STLC)</h2>
+    <p class="lead">STLC is the set of phases testing goes through inside the development life cycle (SDLC). Each phase has entry criteria (what must be ready to start) and exit criteria (what must be done to finish).</p>
+    <ol class="steps">
+      <li><b>Requirement analysis</b><span>Study requirements, ask questions, find what's testable. Output: requirement traceability matrix (RTM).</span></li>
+      <li><b>Test planning</b><span>Scope, approach, effort, schedule, tools, risks, roles. Output: test plan.</span></li>
+      <li><b>Test case design</b><span>Write test cases, test data and automation scripts. Output: reviewed test cases.</span></li>
+      <li><b>Environment setup</b><span>Prepare test servers, data and builds; run a smoke test.</span></li>
+      <li><b>Test execution</b><span>Run tests, log defects, retest fixes, run regression.</span></li>
+      <li><b>Test closure</b><span>Check exit criteria, report metrics, record lessons learned.</span></li>
+    </ol>
+  </div>
+</section>
+
+<section class="band sec" id="types">
+  <div class="wrap">
+    <h2>Types of testing</h2>
+    <p class="lead"><b>Functional</b> testing checks <em>what</em> the system does. <b>Non-functional</b> testing checks <em>how well</em> it does it: speed, security, usability.</p>
+    <div class="search"><div class="chipbtns" id="typefilter"><button class="on" data-f="all">All</button><button data-f="Functional">Functional</button><button data-f="Non-functional">Non-functional</button><button data-f="Change-related">Change-related</button></div></div>
+    <div class="cols" id="typegrid"></div>
+    <h3 style="font-size:24px;margin:32px 0 12px">Commonly confused pairs</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Pair</th><th>Difference</th></tr></thead>
+      <tbody>
+        <tr><td>Smoke vs sanity</td><td>Smoke: broad, shallow check that a new build is stable enough to test. Sanity: narrow check that a specific fix or feature works.</td></tr>
+        <tr><td>Retesting vs regression</td><td>Retesting: confirm a specific fixed bug is fixed (same steps). Regression: confirm the change didn't break anything else.</td></tr>
+        <tr><td>Load vs stress</td><td>Load: expected peak users. Stress: beyond the limit, to find the breaking point and how it recovers.</td></tr>
+        <tr><td>Exploratory vs ad hoc</td><td>Exploratory: structured, time-boxed with a charter, learning while testing. Ad hoc: informal, no plan or documentation.</td></tr>
+        <tr><td>Black box vs white box</td><td>Black box: tests from requirements, no code knowledge. White box: tests designed from the code's structure.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<section class="band sec alt" id="methods">
+  <div class="wrap">
+    <h2>Development methodologies and where testing fits</h2>
+    <p class="lead">The methodology decides <em>when</em> testing happens. The modern trend is earlier and continuous: test in every sprint and in every pipeline run.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Model</th><th>How it works</th><th>When testing happens</th><th>Good for</th></tr></thead>
+      <tbody>
+        <tr><td><b>Waterfall</b></td><td>Sequential phases: requirements → design → build → test → release.</td><td>After development is complete.</td><td>Fixed, well-understood requirements.</td></tr>
+        <tr><td><b>V-Model</b></td><td>Waterfall where each build phase has a matching test phase.</td><td>Test planning starts early; execution still late.</td><td>Safety-critical, regulated systems.</td></tr>
+        <tr><td><b>Agile / Scrum</b></td><td>Short sprints (1–4 weeks) delivering working increments.</td><td>Inside every sprint, alongside development.</td><td>Changing requirements, fast feedback.</td></tr>
+        <tr><td><b>Kanban</b></td><td>Continuous flow of work items with WIP limits.</td><td>As each item moves through a "Test" column.</td><td>Support and maintenance teams.</td></tr>
+        <tr><td><b>DevOps / CI-CD</b></td><td>Automated build, test and deploy on every change.</td><td>Automatically in the pipeline, plus monitoring in production.</td><td>Frequent releases.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="cols" style="margin-top:20px">
+      <div class="box"><h3>Shift-left</h3><p>Move testing earlier: review requirements, write tests before or with code, run unit and API tests in CI.</p></div>
+      <div class="box"><h3>Shift-right</h3><p>Keep testing after release: monitoring, canary releases, A/B tests, feature flags, production smoke checks.</p></div>
+      <div class="box"><h3>TDD</h3><p>Test-driven development: write a failing unit test → write just enough code to pass → refactor. "Red, green, refactor."</p></div>
+      <div class="box"><h3>BDD</h3><p>Behavior-driven development: describe behavior in plain language (Gherkin) that business, devs and QA share.</p><p class="ex"><b>Given</b> a registered user <b>When</b> they enter a wrong password 3 times <b>Then</b> the account is locked</p></div>
+      <div class="box"><h3>ATDD</h3><p>Acceptance test-driven development: the team agrees on acceptance tests before building the story.</p></div>
+      <div class="box"><h3>Agile testing quadrants</h3><p>Q1 unit/component (tech, supports team) · Q2 functional/story tests · Q3 exploratory/usability/UAT · Q4 performance/security.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band sec" id="design">
+  <div class="wrap">
+    <h2>Test design techniques</h2>
+    <p class="lead">Since you can't test everything, these techniques pick the few tests most likely to find bugs. Every example below uses one rule: <b>age must be between 18 and 60</b>.</p>
+    <div class="cols">
+      <div class="box"><h3>Equivalence partitioning</h3><p>Split inputs into groups the system treats the same; test one value from each.</p><p class="ex"><b>Partitions:</b> under 18 (invalid), 18–60 (valid), over 60 (invalid). <b>Tests:</b> 10, 35, 70.</p></div>
+      <div class="box"><h3>Boundary value analysis</h3><p>Bugs hide at the edges. Test on and just beyond each boundary.</p><p class="ex"><b>Tests:</b> 17, 18, 60, 61 (two-value). Add 19 and 59 for three-value BVA.</p></div>
+      <div class="box"><h3>Decision table</h3><p>For combinations of conditions; one column per rule.</p><p class="ex"><b>Login:</b> valid user + valid password → home page · valid user + wrong password → error · unknown user → error.</p></div>
+      <div class="box"><h3>State transition</h3><p>For systems whose behavior depends on their current state.</p><p class="ex"><b>ATM PIN:</b> wrong PIN once → try 2 · twice → try 3 · three times → card blocked.</p></div>
+      <div class="box"><h3>Pairwise testing</h3><p>Test every <em>pair</em> of options instead of every combination.</p><p class="ex"><b>3 browsers × 3 OS × 2 languages</b> = 18 combinations, covered by about 9 pairwise tests.</p></div>
+      <div class="box"><h3>Use case / scenario</h3><p>Test end-to-end user journeys, including alternate and error paths.</p><p class="ex"><b>Checkout:</b> add to cart → pay → confirm; plus card declined, out of stock.</p></div>
+      <div class="box"><h3>White-box coverage</h3><p><b>Statement:</b> every line runs once. <b>Branch/decision:</b> every if is both true and false. <b>Path:</b> every route through the code.</p><p class="ex">100% branch coverage guarantees 100% statement coverage, not the other way round.</p></div>
+      <div class="box"><h3>Experience-based</h3><p><b>Error guessing:</b> try what usually breaks (empty, null, special characters, huge input). <b>Exploratory:</b> learn and test at once, guided by a charter.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band sec alt" id="strategy">
+  <div class="wrap">
+    <h2>Test strategy vs test plan</h2>
+    <p class="lead">The strategy is the organisation's or product's long-term <em>approach</em> to testing. The plan applies it to one project or release: who, what, when.</p>
+    <div class="tbl"><table>
+      <thead><tr><th></th><th>Test strategy</th><th>Test plan</th></tr></thead>
+      <tbody>
+        <tr><td><b>Level</b></td><td>Organisation or product, high level</td><td>Project or release, detailed</td></tr>
+        <tr><td><b>Changes</b></td><td>Rarely</td><td>Often, as the project changes</td></tr>
+        <tr><td><b>Written by</b></td><td>QA manager or lead</td><td>Test lead with the team</td></tr>
+        <tr><td><b>Contains</b></td><td>Test levels and types, automation approach, tools, environments, risk approach, metrics</td><td>Scope (in/out), schedule, resources, entry/exit criteria, deliverables, risks and mitigation</td></tr>
+      </tbody>
+    </table></div>
+    <div class="cols" style="margin-top:20px">
+      <div class="box"><h3>Entry criteria</h3><p>Requirements signed off, build deployed to test environment, smoke test passed, test data ready.</p></div>
+      <div class="box"><h3>Exit criteria</h3><p>Planned tests executed, pass rate target met (for example 95%+), no open critical or high defects, regression passed, sign-off given.</p></div>
+      <div class="box"><h3>Risk-based testing</h3><p>Rank features by <b>likelihood of failure × business impact</b>. Test the highest-risk areas first and deepest; payments before profile photos.</p></div>
+      <div class="box"><h3>Release readiness</h3><p>Go/no-go checklist, rollback (backout) plan tested, post-deployment smoke test in production, release notes from QA.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band sec" id="defects">
+  <div class="wrap">
+    <h2>Defect life cycle</h2>
+    <p class="lead">Every bug moves through states from report to closure. Tools like Jira track these states.</p>
+    <ul class="flow" aria-label="Main path">
+      <li>New</li><li class="arr">→</li><li>Assigned</li><li class="arr">→</li><li>Open</li><li class="arr">→</li><li>Fixed</li><li class="arr">→</li><li>Retest</li><li class="arr">→</li><li>Verified</li><li class="arr">→</li><li>Closed</li>
+    </ul>
+    <p class="tip">Side paths: Retest fails → <b>Reopened</b> (back to Assigned) · not a bug → <b>Rejected</b> · already reported → <b>Duplicate</b> · fix later → <b>Deferred</b>.</p>
+    <h3 style="font-size:24px;margin:28px 0 8px">Severity vs priority</h3>
+    <p class="lead" style="margin-bottom:14px"><b>Severity</b> = how badly the bug affects the system (set by QA). <b>Priority</b> = how soon it must be fixed (set by product owner or business).</p>
+    <div class="mx">
+      <span></span><span class="h">High priority</span><span class="h">Low priority</span>
+      <span class="v">High severity</span>
+      <div class="c hot"><b>High sev · High pri</b>Payment fails for all users. Fix now.</div>
+      <div class="c"><b>High sev · Low pri</b>App crashes on a rarely used legacy report few customers open.</div>
+      <span class="v">Low severity</span>
+      <div class="c"><b>Low sev · High pri</b>Company logo or name misspelled on the home page.</div>
+      <div class="c"><b>Low sev · Low pri</b>Small alignment issue on the help page.</div>
+    </div>
+    <h3 style="font-size:24px;margin:28px 0 8px">A good bug report has</h3>
+    <p>Clear title · environment and build · steps to reproduce · expected vs actual result · severity and priority · screenshots, logs or video · test data used.</p>
+  </div>
+</section>
+
+<section class="band sec alt" id="metrics">
+  <div class="wrap">
+    <h2>Test metrics</h2>
+    <p class="lead">Metrics turn testing into numbers leaders can act on. Know these formulas for interviews.</p>
+    <div class="cols">
+      <div class="box"><h3>Defect removal efficiency</h3><div class="formula">DRE = defects found before release ÷ (before + after release) × 100</div><p class="ex"><b>Example:</b> 90 found in testing, 10 in production → 90%.</p></div>
+      <div class="box"><h3>Defect leakage</h3><div class="formula">Leakage = defects found in production ÷ defects found in testing × 100</div><p class="ex"><b>Example:</b> 10 ÷ 90 → about 11%.</p></div>
+      <div class="box"><h3>Defect density</h3><div class="formula">Density = defects ÷ size (KLOC, modules or story points)</div><p class="ex">Shows which module needs more attention.</p></div>
+      <div class="box"><h3>Automation coverage</h3><div class="formula">Coverage = automated test cases ÷ total automatable test cases × 100</div></div>
+      <div class="box"><h3>Pass rate</h3><div class="formula">Pass rate = passed ÷ executed × 100</div></div>
+      <div class="box"><h3>Also tracked</h3><p>Test execution progress, defect age (time open), mean time to detect and to fix, flaky test rate, escaped defects per release.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band sec" id="automation">
+  <div class="wrap">
+    <h2>Automation strategy</h2>
+    <p class="lead">Automate what's repeated, stable and high-value. Keep humans on exploration, usability and anything that changes every week.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Automate</th><th>Keep manual</th></tr></thead>
+      <tbody>
+        <tr><td>Regression suites run every release</td><td>Exploratory and ad hoc testing</td></tr>
+        <tr><td>Smoke tests on every build</td><td>Usability and look-and-feel</td></tr>
+        <tr><td>Data-heavy tests (many input combinations)</td><td>Features still changing every sprint</td></tr>
+        <tr><td>API and integration checks</td><td>One-time tests</td></tr>
+        <tr><td>Cross-browser runs, performance tests</td><td>Tests needing human judgement (CAPTCHA, visuals)</td></tr>
+      </tbody>
+    </table></div>
+    <div class="cols" style="margin-top:20px">
+      <div class="box"><h3>Framework types</h3><p><b>Linear</b> (record/playback) · <b>Modular</b> · <b>Data-driven</b> (same test, many data rows) · <b>Keyword-driven</b> · <b>BDD</b> (Cucumber) · <b>Hybrid</b> (most real frameworks).</p></div>
+      <div class="box"><h3>Page Object Model</h3><p>Each page is a class: locators are private, actions are public methods. Tests read like user steps and a UI change is fixed in one place.</p></div>
+      <div class="box"><h3>Flaky tests</h3><p>Pass and fail without code changes. Causes: fixed sleeps, timing, shared test data, test order, environment. Fix with explicit waits, isolated data and independent tests; quarantine until fixed.</p></div>
+      <div class="box"><h3>In the CI/CD pipeline</h3><p>Commit → unit tests → build → API tests → deploy to test env → UI smoke → full regression nightly → deploy → production smoke.</p></div>
+      <div class="box"><h3>Common tools</h3><p>UI: Selenium, Playwright, Cypress · API: REST Assured, Postman · Unit: JUnit, TestNG · BDD: Cucumber · Performance: JMeter · CI: Jenkins, GitHub Actions · Reports: Allure.</p></div>
+      <div class="box"><h3>Measuring ROI</h3><p>Compare time to build and maintain the automation against manual hours saved per run × runs per release. Maintenance is the hidden cost.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="band sec alt" id="qa">
+  <div class="wrap">
+    <h2>Interview questions and answers</h2>
+    <p class="lead">Short, confident answers. Practise saying each one out loud, then add an example from your own projects.</p>
+    <div class="search"><input type="search" id="qsearch" placeholder="Search questions, e.g. regression" aria-label="Search interview questions"><button id="openall">Open all</button></div>
+    <div id="qalist"></div>
+    <p class="tip" id="qcount"></p>
+  </div>
+</section>
+
+<section class="band sec" id="quiz">
+  <div class="wrap" style="max-width:820px">
+    <h2>Quick quiz</h2>
+    <p class="score" id="score"></p>
+    <div id="qbox"></div>
+    <button id="qreset">Restart quiz</button>
+  </div>
+</section>
+
+<footer><div class="wrap">Study guide for software testing strategies and methodologies. Definitions follow common ISTQB terminology.</div></footer>
+
+<script>
+{
+const L=[
+  {n:"Unit tests",w:"Single functions or classes in isolation, with dependencies mocked.",who:"Developers (TDD)",tools:"JUnit, TestNG, pytest, Jest",speed:"Milliseconds; thousands per run",share:"Most tests (about 70%)",ex:"calculateDiscount(100, 10) returns 90."},
+  {n:"Integration / API tests",w:"How modules, services, databases and APIs work together.",who:"Developers and SDETs",tools:"REST Assured, Postman, Testcontainers",speed:"Seconds",share:"Middle layer (about 20%)",ex:"POST /orders saves the order and publishes an event."},
+  {n:"System / UI end-to-end",w:"The whole application through the user interface, like a real user.",who:"SDETs and QA",tools:"Selenium, Playwright, Cypress",speed:"Minutes; slowest and most brittle",share:"Fewest tests (about 10%)",ex:"Log in, add to cart, pay, see confirmation."},
+  {n:"Acceptance (UAT)",w:"Whether the system meets business needs and is ready to release.",who:"Business users, product owner",tools:"Mostly manual; BDD with Cucumber",speed:"Days, before release",share:"Key journeys only",ex:"Finance team confirms invoices match real orders."}
+];
+let sel=0;
+const svg=document.getElementById("pyr"),detail=document.getElementById("detail");
+const fills=["#0d0f0e","#2f6b4f","#5fbf8d","#e6fbef"],inks=["#b8f5d0","#ffffff","#0d0f0e","#0d0f0e"];
+function drawP(){
+  const W=svg.clientWidth,H=svg.clientHeight;if(!W||!H)return;
+  const n=L.length,top=10,bot=H-10,base=Math.min(W-8,H*1.35),cx=W/2,gap=5,lh=(bot-top)/n;
+  let out="";
+  for(let i=0;i<n;i++){
+    const level=n-1-i; /* 0 = bottom */
+    const y1=bot-level*lh,y0=y1-lh+gap;
+    const wAt=y=>base*(y-top)/(bot-top);
+    const a=wAt(y0)/2,b=wAt(y1)/2;
+    const idx=n-1-i; /* reorder so unit tests are at the base */
+    const d=L[i];
+    const li=[3,2,1,0][i];
+    out+=`<g tabindex="0" role="button" aria-label="${L[li].n}" data-i="${li}"><polygon points="${cx-a},${y0} ${cx+a},${y0} ${cx+b},${y1} ${cx-b},${y1}" fill="${fills[i]}" stroke="${li===sel?"#c8382c":"none"}" stroke-width="3"/>`;
+    const fs=W<420?13:15;
+    if(i>0)out+=`<text x="${cx}" y="${(y0+y1)/2+5}" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-weight="700" font-size="${fs}" fill="${inks[i]}">${W<420?L[li].n.split(" ")[0]:L[li].n}</text>`;
+    else out+=`<text x="${cx}" y="${y1-12}" text-anchor="middle" font-family="Space Grotesk, sans-serif" font-weight="700" font-size="${fs-1}" fill="${inks[i]}">UAT</text>`;
+    out+=`</g>`;
+  }
+  svg.innerHTML=out;
+}
+function showL(){
+  const d=L[sel];
+  detail.innerHTML=`<span class="pill">Layer ${sel+1} of 4 from the base</span><h3 style="margin-top:10px">${d.n}</h3><p class="sub">${d.w}</p>
+  <div class="kv"><b>Who writes</b><span>${d.who}</span><b>Tools</b><span>${d.tools}</span><b>Speed</b><span>${d.speed}</span><b>How many</b><span>${d.share}</span><b>Example</b><span>${d.ex}</span></div>
+  <p class="tip" style="margin-top:14px">Why a pyramid? Lower tests are fast, cheap and stable, so have many. UI tests are slow and brittle, so keep only key journeys. An upside-down "ice-cream cone" (mostly UI tests) is a common anti-pattern.</p>`;
+}
+svg.addEventListener("click",e=>{const g=e.target.closest("g[data-i]");if(g){sel=+g.dataset.i;drawP();showL()}});
+svg.addEventListener("keydown",e=>{const g=e.target.closest("g[data-i]");if(g&&(e.key==="Enter"||e.key===" ")){e.preventDefault();sel=+g.dataset.i;drawP();showL();svg.querySelector(`g[data-i="${sel}"]`)?.focus()}});
+const ro=new ResizeObserver(drawP);ro.observe(document.getElementById("fig"));
+showL();
+
+const T=[
+  ["Functional","Smoke testing","Quick check that the build's critical paths work before deeper testing.","Build deployed → login, search and checkout open without errors."],
+  ["Functional","Sanity testing","Focused check that a specific fix or small change works.","Coupon bug fixed → apply the coupon and check the total."],
+  ["Functional","System testing","Test the complete, integrated system against requirements.","Full order flow in a production-like environment."],
+  ["Functional","API testing","Test requests and responses directly, without the UI.","GET /users/42 returns 200 and the right JSON fields."],
+  ["Functional","Database testing","Check data is stored, updated and constrained correctly.","After signup, the users table has one new row with a hashed password."],
+  ["Functional","Exploratory testing","Learn, design and run tests at the same time, guided by a charter.","\"Explore the refund flow for 45 minutes, focusing on partial refunds.\""],
+  ["Change-related","Regression testing","Re-run existing tests to make sure new changes broke nothing.","After the tax update, run the full checkout suite."],
+  ["Change-related","Retesting (confirmation)","Re-run the failed test to confirm a bug is fixed.","Bug 1234 fixed → repeat its exact steps."],
+  ["Non-functional","Performance: load","Behavior at expected peak traffic.","1,000 users checking out at once; response under 2 s."],
+  ["Non-functional","Performance: stress","Push past limits to find the breaking point and recovery.","Increase users until errors start; check it recovers."],
+  ["Non-functional","Performance: spike and soak","Spike: sudden surges. Soak (endurance): steady load for hours to find memory leaks.","Black Friday spike; 8-hour soak run overnight."],
+  ["Non-functional","Security testing","Find vulnerabilities: authentication, authorisation, injection, data exposure.","Try SQL injection in the search box; access another user's order by changing the ID."],
+  ["Non-functional","Usability testing","How easy and pleasant the product is for real users.","Five users try to reset a password while you observe."],
+  ["Non-functional","Compatibility testing","Works across browsers, devices, OS versions and screen sizes.","Chrome, Safari, Firefox; iPhone and Android."],
+  ["Non-functional","Accessibility testing","Usable by people with disabilities (WCAG guidelines).","Keyboard-only navigation, screen reader labels, colour contrast."]
+];
+const tg=document.getElementById("typegrid");
+const drawT=f=>{tg.innerHTML=T.filter(t=>f==="all"||t[0]===f).map(t=>`<div class="box"><span class="pill">${t[0]}</span><h3 style="margin-top:8px">${t[1]}</h3><p>${t[2]}</p><p class="ex"><b>Example:</b> ${t[3]}</p></div>`).join("")};
+document.getElementById("typefilter").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;document.querySelectorAll("#typefilter button").forEach(x=>x.classList.toggle("on",x===b));drawT(b.dataset.f)});
+drawT("all");
+
+const QA=[
+  ["What is the difference between a test strategy and a test plan?","The strategy is the high-level, long-term approach for a product or organisation: levels, types, tools, automation and risk approach. The test plan applies it to one release: scope, schedule, people, entry and exit criteria and risks."],
+  ["Smoke vs sanity testing?","Smoke is broad and shallow, run on every new build to decide if it's testable. Sanity is narrow and deep, run after a specific fix to confirm that area works."],
+  ["Retesting vs regression testing?","Retesting confirms a specific bug is fixed by repeating its steps. Regression checks that the change didn't break other features. Retesting comes first, then regression."],
+  ["Severity vs priority? Give an example of high severity, low priority.","Severity is the technical impact; priority is how urgently the business needs the fix. High severity, low priority: a crash in a rarely used legacy report. Low severity, high priority: the company name misspelled on the home page."],
+  ["What is the testing pyramid?","Many fast unit tests at the base, fewer integration/API tests in the middle and a small number of UI end-to-end tests at the top. It keeps feedback fast and suites stable. The opposite, mostly UI tests, is the ice-cream cone anti-pattern."],
+  ["Explain boundary value analysis with an example.","Test at and just beyond the edges of valid ranges, where bugs cluster. If age must be 18–60, test 17, 18, 60 and 61."],
+  ["What is equivalence partitioning?","Divide inputs into groups the system treats the same and test one value from each, such as under 18, 18–60 and over 60."],
+  ["What are entry and exit criteria?","Entry criteria are conditions to start testing (build deployed, smoke passed, test data ready). Exit criteria are conditions to stop (tests run, pass rate met, no open critical defects, sign-off)."],
+  ["Explain the defect life cycle.","New → Assigned → Open → Fixed → Retest → Verified → Closed. If retest fails it is Reopened; it can also be Rejected, Duplicate or Deferred."],
+  ["What makes a good bug report?","A clear title, environment and build, exact steps, expected vs actual result, severity and priority, and evidence like screenshots, logs or video."],
+  ["What is shift-left testing?","Testing earlier in the life cycle: reviewing requirements, writing tests alongside code and running automated tests in CI, because earlier bugs are cheaper to fix."],
+  ["What is risk-based testing?","Prioritising testing by likelihood of failure × business impact, so the riskiest features, like payments, get tested first and most."],
+  ["How do you decide what to automate?","Automate stable, repeated, high-value tests: regression, smoke, data-driven and API tests. Keep exploratory, usability and fast-changing features manual. Weigh build and maintenance cost against time saved."],
+  ["How do you handle flaky tests?","Find the cause (timing, shared data, test order, environment), replace sleeps with explicit waits, isolate test data, make tests independent and quarantine them until fixed so they don't block the pipeline."],
+  ["What is the Page Object Model?","A design pattern where each page is a class holding its locators and actions. Tests call methods like loginPage.login(user), so a UI change is fixed in one place."],
+  ["TDD vs BDD?","TDD is a developer practice: write a failing unit test, make it pass, refactor. BDD describes behavior in shared plain language (Given/When/Then) so business, developers and QA agree on what to build."],
+  ["How does testing work in Agile?","Testers are part of the sprint team: they refine stories and acceptance criteria, test stories as they're built, automate regression and help define the definition of done."],
+  ["What is regression test selection when time is short?","Prioritise by risk: areas touched by the change, critical business flows, features with past defects and integrations. Run the automated suite and focus manual effort there."],
+  ["What is defect leakage and how do you reduce it?","Bugs found in production that testing missed. Reduce it with root-cause analysis of escaped defects, adding regression tests for them, better requirement reviews and risk-based coverage."],
+  ["Load vs stress vs soak testing?","Load checks behavior at expected peak. Stress pushes past limits to find the breaking point. Soak runs a steady load for hours to find leaks and slowdowns."],
+  ["What is the difference between verification and validation?","Verification checks we built the product right (reviews against specs). Validation checks we built the right product (running it against user needs)."],
+  ["What is a requirement traceability matrix (RTM)?","A table mapping each requirement to its test cases and defects, so you can show every requirement is covered and see the impact of a change."],
+  ["How do you test an API?","Check status codes, response body and schema, headers, error handling for bad input, authentication and authorisation, data saved in the database, and performance."],
+  ["What would you do if a developer says your bug is not a bug?","Re-check the requirement, reproduce it with clear evidence, explain the user impact, and if still unclear, ask the product owner to decide. Stay factual, not personal."],
+  ["What is backout (rollback) testing?","Verifying that a release can be safely undone, returning the system to the previous version with data intact, before you need it in production."]
+];
+const qal=document.getElementById("qalist"),qs=document.getElementById("qsearch");
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+function drawQA(){
+  const t=qs.value.trim().toLowerCase();
+  const hits=QA.filter(q=>!t||(q[0]+" "+q[1]).toLowerCase().includes(t));
+  qal.innerHTML=hits.map(q=>`<details><summary>${esc(q[0])}</summary><div class="a"><p>${esc(q[1])}</p></div></details>`).join("")||`<p>No questions match "${esc(t)}". Try another word.</p>`;
+  document.getElementById("qcount").textContent=`Showing ${hits.length} of ${QA.length} questions`;
+}
+qs.addEventListener("input",drawQA);
+let allOpen=false;
+document.getElementById("openall").onclick=e=>{allOpen=!allOpen;qal.querySelectorAll("details").forEach(d=>d.open=allOpen);e.target.textContent=allOpen?"Close all":"Open all"};
+drawQA();
+
+const Z=[
+  ["A new build arrives. Which test decides if it's stable enough for further testing?",["Regression","Smoke","Usability","Soak"],1,"Smoke testing is the broad, quick gate on every new build."],
+  ["Age must be 18–60. Which set is boundary value analysis?",["10, 35, 70","17, 18, 60, 61","18, 30, 45, 60","0, 100"],1,"BVA tests on and just outside each boundary."],
+  ["Company logo misspelled on the home page is usually:",["High severity, high priority","Low severity, high priority","High severity, low priority","Low severity, low priority"],1,"It doesn't break function (low severity) but hurts the brand, so fix it fast (high priority)."],
+  ["Which layer should have the MOST tests in the pyramid?",["UI end-to-end","Acceptance","Unit","Manual exploratory"],2,"Unit tests are fastest and cheapest, so they form the base."],
+  ["90 defects found in testing and 10 in production. What is the DRE?",["10%","80%","90%","100%"],2,"DRE = 90 ÷ (90 + 10) × 100 = 90%."],
+  ["Which is a non-functional test?",["Login with valid credentials","API returns 201","Page loads in under 2 seconds with 1,000 users","Discount is applied"],2,"Performance is about how well the system works, not what it does."],
+  ["\"Red, green, refactor\" describes:",["BDD","TDD","Waterfall","Exploratory testing"],1,"TDD: write a failing test, make it pass, then clean up."],
+  ["Running the same tests repeatedly stops finding new bugs. This principle is:",["Defect clustering","Pesticide paradox","Absence-of-errors fallacy","Early testing"],1,"Tests wear out; review and add new ones."]
+];
+let ans={};
+const qbox=document.getElementById("qbox");
+function drawZ(){
+  const right=Object.entries(ans).filter(([i,v])=>Z[i][2]===v).length;
+  document.getElementById("score").textContent=`Score: ${right} / ${Z.length}`;
+  qbox.innerHTML=Z.map((z,i)=>`<div class="box q"><h3 style="font-size:19px">${i+1}. ${esc(z[0])}</h3><div class="opts">${z[1].map((o,j)=>{let c="";if(i in ans){if(j===z[2])c="r";else if(j===ans[i])c="w"}return `<button class="opt ${c}" data-q="${i}" data-o="${j}" ${i in ans?"disabled":""}>${esc(o)}</button>`}).join("")}</div>${i in ans?`<p class="why">${ans[i]===z[2]?"Correct. ":"Not quite. "}${esc(z[3])}</p>`:""}</div>`).join("");
+}
+qbox.addEventListener("click",e=>{const b=e.target.closest(".opt");if(!b||b.disabled)return;ans[b.dataset.q]=+b.dataset.o;drawZ()});
+document.getElementById("qreset").onclick=()=>{ans={};drawZ();document.getElementById("quiz").scrollIntoView()};
+drawZ();
+
+const links=[...document.querySelectorAll("#toc a")];
+const io=new IntersectionObserver(es=>{es.forEach(en=>{if(en.isIntersecting){links.forEach(a=>a.classList.toggle("on",a.getAttribute("href")==="#"+en.target.id))}})},{rootMargin:"-40% 0px -55% 0px"});
+document.querySelectorAll("section[id]").forEach(s=>io.observe(s));
+}
+</script>
+</body>
+</html>
